@@ -1,57 +1,19 @@
 defmodule Lambdapad.Html do
-  alias Lambdapad.Cli
+  alias Lambdapad.Html
 
   def init(name, html_file, workdir, :erlydtl) when is_binary(name) do
-    module = Module.concat([__MODULE__, Macro.camelize(name)])
-    if not function_exported?(module, :__info__, 1) do
-      templates_dir = Path.join([workdir, "templates"])
-      html_file_path = to_charlist(Path.join([templates_dir, html_file]))
-      opts = [
-        :return,
-        libraries: [
-          {"widget", Lambdapad.Html.Widget},
-          {"filters", Lambdapad.Html.Filters}
-        ],
-        default_libraries: ["widget", "filters"]
-      ]
-      case :erlydtl.compile_file(html_file_path, module, opts) do
-        {:ok, _module, warnings} ->
-          warnings = filter_warnings(warnings)
-          if warnings != [] do
-            Cli.print_level2_warn("#{inspect(warnings)}")
-          end
-          module
-
-        {:error, error, []} ->
-          raise """
-          template #{inspect(name)} file #{inspect(html_file)} not found
-
-          error: #{inspect(error)}
-          """
-      end
-    else
-      module
-    end
+    Html.Erlydtl.init(name, html_file, workdir)
   end
 
-  defp filter_warnings(warnings) do
-    filter_warnings(warnings, [])
+  def init(name, theme, workdir, :wordpress) when is_binary(name) do
+    Html.Wordpress.init(name, theme, workdir)
   end
 
-  defp filter_warnings([], acc), do: acc
-  defp filter_warnings([{_file, [{:none, _, :no_out_dir}]} | rest], acc) do
-    filter_warnings(rest, acc)
-  end
-  defp filter_warnings([{'', [{_n, :sys_core_fold, :useless_building}]} | rest], acc) do
-    filter_warnings(rest, acc)
-  end
-  defp filter_warnings([warning|rest], acc) do
-    filter_warnings(rest, [warning|acc])
+  def render(vars, module, config, :erlydtl) do
+    Html.Erlydtl.render(vars, module, config)
   end
 
-  def render(vars, module, config) do
-    vars = vars ++ config
-    {:ok, data} = apply(module, :render, [vars, config])
-    IO.iodata_to_binary(data)
+  def render(vars, theme, config, :wordpress) do
+    Html.Wordpress.render(vars, theme, config)
   end
 end

@@ -1,4 +1,4 @@
-defmodule Lambdapad.Html.Filters do
+defmodule Lambdapad.Html.Erlydtl.Filters do
   @behaviour :erlydtl_library
 
   def version, do: 1

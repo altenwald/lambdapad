@@ -1,4 +1,4 @@
-defmodule Lambdapad.Html.Widget do
+defmodule Lambdapad.Html.Erlydtl.Widget do
   @behaviour :erlydtl_library
 
   def version, do: 1

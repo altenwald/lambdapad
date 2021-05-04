@@ -36,7 +36,7 @@ defmodule Lambdapad.Generate.Widgets do
         end
 
       env_data = Config.to_proplist(widget_data[:env]) || []
-      iodata = Html.render(vars, render_mod, plist_config ++ env_data)
+      iodata = Html.render(vars, render_mod, plist_config ++ env_data, format)
       Cli.print_level2_ok()
       Map.put(acc, name, iodata)
     end)

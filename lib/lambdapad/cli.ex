@@ -51,6 +51,9 @@ defmodule Lambdapad.Cli do
     end
   end
 
+  def blocks(elements) when map_size(elements) == 1, do: "(1 block)"
+  def blocks(elements), do: "(#{map_size(elements)} blocks)"
+
   defp commands(%_{args: %{infile: nil}} = params, rawargs) do
     commands(%{params | args: %{infile: @default_file}}, rawargs)
   end
@@ -78,22 +81,38 @@ defmodule Lambdapad.Cli do
     print_level2_ok()
     print_level1_ok(t)
 
-    t = print_level1("Processing widgets")
-    widgets = Generate.Widgets.process(get_widgets(mod, config), config, mod, workdir)
-    config = Map.put(config, "widgets", widgets)
-    print_level1_ok(t)
+    widgets_data = get_widgets(mod, config)
+    config =
+      if map_size(widgets_data) > 0 do
+        t = print_level1("Processing widgets", blocks(widgets_data))
+        widgets = Generate.Widgets.process(widgets_data, config, mod, workdir)
+        config = Map.put(config, "widgets", widgets)
+        print_level1_ok(t)
+        config
+      else
+        config
+      end
 
-    t = print_level1("Processing pages")
-    config = Generate.Pages.process(get_pages(mod, config), config, mod, workdir, output_dir)
-    print_level1_ok(t)
+    pages_data = get_pages(mod, config)
+    if map_size(pages_data) do
+      t = print_level1("Processing pages", blocks(pages_data))
+      Generate.Pages.process(pages_data, config, mod, workdir, output_dir)
+      print_level1_ok(t)
+    end
 
-    t = print_level1("Processing checks")
-    apply_finish_checks(get_checks(mod), config)
-    print_level1_ok(t)
+    checks = get_checks(mod)
+    if map_size(checks) do
+      t = print_level1("Processing checks")
+      apply_finish_checks(checks, config)
+      print_level1_ok(t)
+    end
 
-    t = print_level1("Processing assets")
-    Generate.Assets.process(get_assets(mod, config), workdir)
-    print_level1_ok(t)
+    assets_data = get_assets(mod, config)
+    if map_size(assets_data) do
+      t = print_level1("Processing assets", blocks(assets_data))
+      Generate.Assets.process(assets_data, workdir)
+      print_level1_ok(t)
+    end
 
     gt = System.system_time(:millisecond) - gt
     IO.puts([IO.ANSI.blue(), "Done (#{gt / 1000}s)", IO.ANSI.reset()])

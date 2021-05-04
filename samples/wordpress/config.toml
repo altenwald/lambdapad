@@ -1,0 +1,10 @@
+[blog]
+url = "http://localhost:8080/"
+
+[hello]
+msg = "Hello, from Erlang term file!"
+points = [
+    "Erlang terms are already Erlang - pretty convenient",
+    "Erlang terms are relatively compact, especially with maps",
+    "Admit it, it's fun to store data in Erlang!"
+]

@@ -37,7 +37,8 @@ defmodule Lambdapad.MixProject do
       {:toml, "~> 0.6"},
       {:optimus, "~> 0.2"},
       {:cowboy, "~> 2.8"},
-      {:floki, "~> 0.30"}
+      {:floki, "~> 0.30"},
+      {:ephp, "~> 0.3"}
     ]
   end
 end
